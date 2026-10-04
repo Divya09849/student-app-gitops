@@ -1,0 +1,176 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+
+  name: {{ include "student-app.fullname" . }}
+
+  labels:
+
+    {{- include "student-app.labels" . | nindent 4 }}
+
+
+spec:
+
+  replicas: {{ .Values.replicaCount }}
+
+
+  selector:
+
+    matchLabels:
+
+      {{- include "student-app.selectorLabels" . | nindent 6 }}
+
+
+  strategy:
+
+    type: RollingUpdate
+
+    rollingUpdate:
+
+      maxUnavailable: 0
+
+      maxSurge: 1
+
+
+  template:
+
+    metadata:
+
+      labels:
+
+        {{- include "student-app.selectorLabels" . | nindent 8 }}
+
+        {{- with .Values.podLabels }}
+
+        {{- toYaml . | nindent 8 }}
+
+        {{- end }}
+
+
+      {{- with .Values.podAnnotations }}
+
+      annotations:
+
+        {{- toYaml . | nindent 8 }}
+
+      {{- end }}
+
+
+    spec:
+
+      serviceAccountName: {{ include "student-app.serviceAccountName" . }}
+
+
+      securityContext:
+
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+
+
+      containers:
+
+        - name: {{ .Chart.Name }}
+
+
+          securityContext:
+
+            {{- toYaml .Values.securityContext | nindent 12 }}
+
+
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+
+          ports:
+
+            - name: http
+
+              containerPort: {{ .Values.containerPort }}
+
+              protocol: TCP
+
+
+          envFrom:
+
+            - configMapRef:
+
+                name: {{ include "student-app.fullname" . }}
+
+
+          {{- if .Values.livenessProbe.enabled }}
+
+          livenessProbe:
+
+            httpGet:
+
+              path: {{ .Values.livenessProbe.path }}
+
+              port: http
+
+
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+
+          {{- end }}
+
+
+          {{- if .Values.readinessProbe.enabled }}
+
+          readinessProbe:
+
+            httpGet:
+
+              path: {{ .Values.readinessProbe.path }}
+
+              port: http
+
+
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+
+          {{- end }}
+
+
+          resources:
+
+            {{- toYaml .Values.resources | nindent 12 }}
+
+
+      {{- with .Values.nodeSelector }}
+
+      nodeSelector:
+
+        {{- toYaml . | nindent 8 }}
+
+      {{- end }}
+
+
+      {{- with .Values.affinity }}
+
+      affinity:
+
+        {{- toYaml . | nindent 8 }}
+
+      {{- end }}
+
+
+      {{- with .Values.tolerations }}
+
+      tolerations:
+
+        {{- toYaml . | nindent 8 }}
+
+      {{- end }}

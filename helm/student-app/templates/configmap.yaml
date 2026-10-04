@@ -1,0 +1,18 @@
+apiVersion: v1
+
+kind: ConfigMap
+
+metadata:
+
+  name: {{ include "student-app.fullname" . }}
+
+  labels:
+
+    {{- include "student-app.labels" . | nindent 4 }}
+
+
+data:
+
+  APP_ENVIRONMENT: {{ .Values.application.environment | quote }}
+
+  APP_VERSION: {{ .Values.application.version | quote }}

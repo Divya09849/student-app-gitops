@@ -1,0 +1,45 @@
+Student GitOps Application has been deployed.
+
+Release:
+
+  {{ .Release.Name }}
+
+Namespace:
+
+  {{ .Release.Namespace }}
+
+Service:
+
+  {{ include "student-app.fullname" . }}
+
+Application port:
+
+  {{ .Values.service.port }}
+
+
+To test using port-forward:
+
+  kubectl port-forward \
+    service/{{ include "student-app.fullname" . }} \
+    8080:{{ .Values.service.port }} \
+    -n {{ .Release.Namespace }}
+
+
+Then open:
+
+  http://localhost:8080
+
+
+Health:
+
+  http://localhost:8080/health
+
+
+Readiness:
+
+  http://localhost:8080/ready
+
+
+Metrics:
+
+  http://localhost:8080/metrics

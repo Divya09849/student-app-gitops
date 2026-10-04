@@ -1,0 +1,20 @@
+# VS Code
+
+.vscode/
+
+
+# OS files
+
+.DS_Store
+
+Thumbs.db
+
+
+# Helm temporary files
+
+*.tgz
+
+
+# Local testing files
+
+*.tmp
